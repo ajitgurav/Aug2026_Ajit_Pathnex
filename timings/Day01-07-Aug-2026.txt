@@ -9,7 +9,7 @@
  2hr introduction video practice
 
 
-## Tomorrow's Task
+## Tomorrow's Task 
 
 
  2 hour - AWS services review 2nd lecture
