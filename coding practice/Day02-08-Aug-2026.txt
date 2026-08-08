@@ -6,7 +6,7 @@ Day 02 - Services & Tags
   hosts: all
   become: yes
 
-  tasks:
+  tasks: 
     -name: Install nginx
      yum:
        name: nginx
