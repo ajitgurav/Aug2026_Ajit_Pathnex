@@ -1,0 +1,227 @@
+L2 practice set 
+
+
+Day 03 - Ansible , Terraform & Kubernates Basics 
+
+🔹 Ansible - Install Apache and start service
+
+
+- name: Install and Start Apache
+  hosts: all 
+  become: yes
+  tasks:
+    - name: Install Apache
+      yum:
+        name: httpd
+        state: present
+
+    - name: Start Apache
+      service:
+        name: httpd
+        state: started
+        enabled: yes
+
+
+ 🔹 Terraform - EC2 Instance (t3.medium)
+ provider "aws" {
+   region = "us-east-1"
+   }    
+
+   resource "aws_instance" "PathnexEC2" {
+     ami           = "ami-0abcd1234abcd1234"
+     instance_type = "t3.medium"
+     tags = {
+       Name = "Pathnex-T3"
+      }
+    }
+
+
+    🔹 Kubernates - Create a ReplicaSet with 3 Replicas
+
+
+    apiVersion: apps/v1
+    kind: ReplicaSet
+    metadata:
+      name:pathnex-ReplicaSet
+    spec:
+      replicas: 3
+      selector:
+        matchLabels:
+          app: pathnex-app
+      template:
+        metadata:
+          labels:
+            app: pathnex-app
+        spec:
+          containers:
+            - name: app
+              image: app
+              ports:
+                - containerPort:80
+
+
+ 🔹 Shell Script -User Info
+
+ #!/bin/bash
+ echo "Current user: $(whoami)"
+ echo "Current user groups: $(groups)"
+
+
+ 🔹  Docker 
+
+  # Docker file for Nginx Web Server
+  FROM nginx:latest
+  COPY index.html /user/share/nginx/html/index.html
+
+  #HTML
+  <h1>Hello Pathnex</h1>
+
+  # Bash
+  # Real Path
+  /user/share/nginx/html
+
+  # Bash
+  docker build -t pathnex-nginx .
+  docker run -d -p 80:80 pathnex-nginx 
+
+
+
+============================================================
+
+L1 Practice::
+
+
+# Day 03 - Users, SGs, Env Vars
+
+## 🔹 Ansible - Create User
+
+---
+- name: Create Pathnex user
+  hosts: all
+  become: yes
+
+  tasks:
+    - name: Create user pathnex-admin
+      user:
+        name: pathnex-admin
+        shell: /bin/bash
+
+
+        ## 🔹 Terraform - Security Group (r6i.4xlarge EC2)
+
+        provider "aws" {
+              region = "us-east-1"
+        }
+
+resource "aws_security_group" "PathnexSG" {
+  name        = "PathnexSG"
+  description = "Pathnex SG for SSH"
+
+  ingress {
+      from_port    = 33
+      to_port      = 22
+      protocol     = "tcp"
+      cidr_blocks  = ["0.0.0.0/0]
+  }
+}
+
+resource "aws_instance" "PathnexEC2" {
+  ami                    ="ami-0abcd1234abcd1234"
+  instance_type          = "r6i.4xlarge"
+  vpc_security_group_ids = [aws_security_group.PathnexSG.id]
+
+  tags = {
+    Name = "Pathnex-EC2"
+  }      
+}
+
+
+## 🔹 Kubernates - Add Environment Variables
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pathnex-env-pod
+spec:
+  containers:
+    - name: app
+      image: nginx
+      env:
+        - name: APP_ENV
+        value: "production"
+
+
+## 🔹 Shell Script - Check File Exists
+
+#!/bin/
+FILE="/tmp/pathnex.txt"
+
+if [ -f "$FILE" ]; then
+  echo "File exists"
+else
+  echo "File does not exist"
+  fi
+
+
+  # NodeJS Build
+  ## 🔹 Jenkins Pipeline - NodeJS Build
+  You will learn how to **install dependencies, run tests, and build a nodeJS projects**.
+
+  pipeline {
+      agent any
+      tools {
+          nodeJS 'NodeJS-16'
+      }
+      stages {
+           stage('checkout') {
+           steps {
+               git url: https://github.com/Pathnex/sample-node-app.git'
+           }
+         }
+         stage('Install Dependecies') {
+             steps {
+                 sh 'npm install'
+             }
+         }
+         stage('Run Tests') {
+            steps {
+                sh 'npm test'
+            }
+        }
+        stage('Build') {
+            steps {
+                sh 'npm run build'
+            }
+        }
+      }
+  }
+
+## 🔹 GitLab CI -NodeJS Build 
+
+stges: 
+  - install
+  - test
+  - build
+
+  nodes-install:
+    stage: install
+    image: nodes:16
+    script:
+      - git clone https://github.com/sample-nodes-app.git
+      - cd sample-node-app
+      - npm install
+
+      node-test:
+        stage: test
+        image: node:16
+        script:
+        - cd sample-node-app
+        - npm test
+
+    mode-build:
+      stage: build
+      image: nodes:16
+        script:
+          -cd sample-node-app
+          - npm run build              
+    
